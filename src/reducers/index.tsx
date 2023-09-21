@@ -1,15 +1,26 @@
 import { ContactDetailState, ActionTypes } from "../types";
 
+interface ContactState {
+  contacts_ids: string[];
+  contacts: ContactDetailState[];
+}
+
+interface AddedDataState extends ContactState {
+  page: number;
+}
+
 // Define the state type for this reducer
 export interface DataState {
-  data: [];
+  data: ContactState;
   loading: boolean;
+  page: number;
   error: string | null;
 }
 
 // Define the initial state
 const initialState: DataState = {
-  data: [],
+  data: { contacts_ids: [], contacts: [] },
+  page: 1,
   loading: false,
   error: null,
 };
@@ -28,6 +39,7 @@ const dataReducer = (
     case ActionTypes.FETCH_DATA_SUCCESS:
       return {
         ...state,
+        page: action.payload.page,
         loading: false,
         data: action.payload,
       };
@@ -37,7 +49,20 @@ const dataReducer = (
         loading: false,
         error: action.payload,
       };
-
+    case ActionTypes.ADD_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        page: action.payload.page,
+        data: {
+          ...state.data,
+          contacts_ids: [
+            ...state.data.contacts_ids,
+            ...action.payload.contacts_ids,
+          ],
+          contacts: { ...state.data.contacts, ...action.payload.contacts },
+        },
+      };
     default:
       return state;
   }
@@ -50,7 +75,7 @@ interface FetchDataRequestAction {
 
 interface FetchDataSuccessAction {
   type: ActionTypes.FETCH_DATA_SUCCESS;
-  payload: any;
+  payload: AddedDataState;
 }
 
 interface FetchDataFailureAction {
@@ -60,12 +85,13 @@ interface FetchDataFailureAction {
 
 interface AddDataSuccessAction {
   type: ActionTypes.ADD_DATA_SUCCESS;
-  payload: any;
+  payload: AddedDataState;
 }
 
 type DataAction =
   | FetchDataRequestAction
   | FetchDataSuccessAction
-  | FetchDataFailureAction;
+  | FetchDataFailureAction
+  | AddDataSuccessAction;
 
 export default dataReducer;

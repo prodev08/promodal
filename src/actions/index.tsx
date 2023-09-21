@@ -3,6 +3,13 @@ import { ActionTypes } from "../types";
 import { Dispatch } from "redux";
 import { RootState } from "../store";
 
+interface Params {
+  cId: string;
+  name: string;
+  page: number;
+  isAdd: boolean;
+}
+
 const axiosInstance = axios.create({
   baseURL: "https://api.dev.pastorsline.com/api/", // Replace with your API URL
   headers: {
@@ -24,15 +31,29 @@ export const fetchDataFailure = (error: any) => ({
   payload: error,
 });
 
-export const fetchData = () => {
+export const fetchData = ({ cId, name, page, isAdd }: Params) => {
   return async (dispatch: Dispatch, getState: () => RootState) => {
     dispatch(fetchDataRequest());
     try {
-      const response = await axiosInstance.get(`contacts.json?companyId=560`);
+      const response = await axiosInstance.get(
+        `contacts.json?companyId=560&countryId=${cId}&query=${name}&page=${page}`
+      );
 
-      dispatch(fetchDataSuccess(response.data));
+      response.data.page = page;
+
+      if (isAdd) {
+        // Assuming you have an addDataSuccess action
+        dispatch(addDataSuccess(response.data));
+      } else {
+        dispatch(fetchDataSuccess(response.data));
+      }
     } catch (error) {
       dispatch(fetchDataFailure(error));
     }
   };
 };
+
+export const addDataSuccess = (data: any) => ({
+  type: ActionTypes.ADD_DATA_SUCCESS,
+  payload: data,
+});
