@@ -1,0 +1,18 @@
+$purple-color: #46139f;
+$orange-color: #ff7f50;
+$white-color: #fff;
+
+.color-a {
+  border: none !important;
+  background-color: $purple-color !important;
+}
+
+.color-b {
+  border: none !important;
+  background-color: $orange-color !important;
+}
+
+.color-c {
+  border: solid 1px $purple-color !important;
+  background-color: $white-color !important;
+}
